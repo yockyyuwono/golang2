@@ -1,0 +1,10 @@
+{
+		"AppServer":":8080",
+		"DbDriver":"sqlserver",
+		"HostDatabase":"192.168.1.227",
+		"UserDatabase":"yocky",
+		"PasswordDatabase":"y0cky2012",
+		"DatabaseName":"BelajarDb",
+		"EncryptDatabase":"disable"
+	
+}
