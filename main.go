@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	_ "github.com/denisenkom/go-mssqldb"
@@ -50,24 +49,33 @@ func hellogreetingmain(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method == "POST" {
-		var personModel mdl.Person
+		//var personModel mdl.Person
 
-		//var resultstring string
+		////var resultstring string
 
-		//var resultstring string = GreetingFunction("Gladys")
-		//var resultstring string = "saya"
-		resultstring := bc.GreetingFunction("saya")
-
-		fmt.Println(resultstring)
+		////var resultstring string = GreetingFunction("Gladys")
+		////var resultstring string = "saya"
+		//resultstring := bc.GreetingFunction("saya")
+		//var result, err1 = json.Marshal(resultstring)
+		//fmt.Println(resultstring)
 		//var result, err = json.Marshal(resultstring)
-		err := json.NewDecoder(r.Body).Decode(&personModel)
 
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+		//err := json.NewDecoder(r.Body).Decode(&personModel)
+
+		//if err != nil {
+		//	http.Error(w, err.Error(), http.StatusInternalServerError)
+		//	return
+		//}
+		////fmt.Fprintf(w, "Person: %+v", personModel.Name)
+		////w.Write(p)
+
+		resultstring := bc.GreetingFunction("saya")
+		var result, err1 = json.Marshal(resultstring)
+		if err1 != nil {
+			http.Error(w, err1.Error(), http.StatusInternalServerError)
 			return
 		}
-		fmt.Fprintf(w, "Person: %+v", personModel.Name)
-		//w.Write(p)
+		w.Write(result)
 		return
 	}
 
