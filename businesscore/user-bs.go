@@ -11,7 +11,7 @@ import (
 func GetMsUserSingle(usercode string) (string, error) {
 
 	sqlQuery := fmt.Sprintf("select UserCode, Passwords from MsUser where UserCode = '%s'", usercode)
-	jsonData, err := dal.GetMsUserSingleDal((sqlQuery))
+	jsonData, err := dal.GetFromDatabaseSingleDal((sqlQuery))
 
 	if err != nil {
 		return "", err
@@ -24,7 +24,7 @@ func GetMsUserList() (string, error) {
 	sqlQuery := "select RowId,UserCode,Passwords,BadgeNumber,Ssn,LastLogin,LoginLocation,DepartmentId,Email,"
 	sqlQuery += "RoleId,CreatedBy,CreatedDate,LastUpdatedBy,LastUpdatedDate,Active from MsUser"
 
-	jsonData, err := dal.GetMsUserListDal((sqlQuery))
+	jsonData, err := dal.GetFromDatabaseListDal((sqlQuery))
 
 	if err != nil {
 		return "", err
@@ -66,8 +66,58 @@ func AddNewUserSingle(userSave mdl.UserSave) (string, error) {
 	sqlQuery += ",'" + userSave.LastUpdatedDate + "'"
 	sqlQuery += ",'" + userSave.Active + "'"
 	sqlQuery += "); "
+	sqlQuery += "SELECT 'Data Has Been Save' As 'Message' "
 
-	jsonData, err := dal.GetMsUserSingleDal((sqlQuery))
+	jsonData, err := dal.SaveToDatabase((sqlQuery))
+
+	if err != nil {
+		return "", err
+	}
+	return string(jsonData), nil
+}
+
+func AddNewUserBulk(userSave []mdl.UserSave) (string, error) {
+	sqlQuery := ""
+	for i := 0; i < len(userSave); i++ {
+		fmt.Printf("%x ", userSave[i])
+		//sqlQuery := fmt.Sprintf("select UserCode, Passwords from MsUser where UserCode = '%s'", userSave.UserCode)
+		sqlQuery += "INSERT INTO MsUSer ("
+		sqlQuery += "UserCode"
+		sqlQuery += ",Passwords"
+		sqlQuery += ",BadgeNumber"
+		sqlQuery += ",Ssn"
+		sqlQuery += ",LastLogin"
+		sqlQuery += ",LoginLocation"
+		sqlQuery += ",DepartmentId"
+		sqlQuery += ",Email"
+		sqlQuery += ",RoleId"
+		sqlQuery += ",CreatedBy"
+		sqlQuery += ",CreatedDate"
+		sqlQuery += ",LastUpdatedBy"
+		sqlQuery += ",LastUpdatedDate"
+		sqlQuery += ",Active"
+		sqlQuery += ") "
+		sqlQuery += "VALUES ( "
+		sqlQuery += "'" + userSave[i].UserCode + "'"
+		sqlQuery += ",'" + userSave[i].Passwords + "'"
+		sqlQuery += ",'" + userSave[i].BadgeNumber + "'"
+		sqlQuery += ",'" + userSave[i].Ssn + "'"
+		sqlQuery += ",'" + userSave[i].LastLogin + "'"
+		sqlQuery += ",'" + userSave[i].LoginLocation + "'"
+		sqlQuery += ",'" + userSave[i].DepartmentId + "'"
+		sqlQuery += ",'" + userSave[i].Email + "'"
+		sqlQuery += ",'" + userSave[i].RoleId + "'"
+		sqlQuery += ",'" + userSave[i].CreatedBy + "'"
+		sqlQuery += ",'" + userSave[i].CreatedDate + "'"
+		sqlQuery += ",'" + userSave[i].LastUpdatedBy + "'"
+		sqlQuery += ",'" + userSave[i].LastUpdatedDate + "'"
+		sqlQuery += ",'" + userSave[i].Active + "'"
+		sqlQuery += "); "
+	}
+
+	sqlQuery += "SELECT 'Data Has Been Save' As 'Message' "
+
+	jsonData, err := dal.SaveToDatabase((sqlQuery))
 
 	if err != nil {
 		return "", err

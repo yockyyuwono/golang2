@@ -30,6 +30,7 @@ func main() {
 	http.HandleFunc("/getmsusersingle", getmsusersingle)
 	http.HandleFunc("/getmsuserlist", getmsuserlist)
 	http.HandleFunc("/addmsusersingle", addmsusersingle)
+	http.HandleFunc("/addmsuserbulk", addmsuserbulk)
 
 	//http.ListenAndServe("192.168.205.20:8080", nil)
 
@@ -120,7 +121,7 @@ func getmsusersingle(w http.ResponseWriter, r *http.Request) {
 func getmsuserlist(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if r.Method == "POST" {
+	if r.Method == "GET" {
 		/*
 			var userModel mdl.User
 			err := json.NewDecoder(r.Body).Decode(&userModel)
@@ -162,6 +163,41 @@ func addmsusersingle(w http.ResponseWriter, r *http.Request) {
 		}
 
 		var resultstring, err2 = bc.AddNewUserSingle(userSaveModel)
+		//fmt.Println(resultstring)
+		var result, err3 = json.Marshal(resultstring)
+
+		if err1 != nil {
+			http.Error(w, err1.Error(), http.StatusInternalServerError)
+			return
+		}
+		if err2 != nil {
+			http.Error(w, err2.Error(), http.StatusInternalServerError)
+			return
+		}
+		if err3 != nil {
+			http.Error(w, err3.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Write(result)
+
+		return
+	}
+}
+
+func addmsuserbulk(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	if r.Method == "POST" {
+		var userSaveModel []mdl.UserSave
+
+		err1 := json.NewDecoder(r.Body).Decode(&userSaveModel)
+		if err1 != nil {
+			http.Error(w, err1.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		var resultstring, err2 = bc.AddNewUserBulk(userSaveModel)
 		//fmt.Println(resultstring)
 		var result, err3 = json.Marshal(resultstring)
 

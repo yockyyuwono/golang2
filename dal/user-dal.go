@@ -23,7 +23,7 @@ var encrypt = "disable"
 //var port = 1434
 */
 
-func GetMsUserSingleDal(sqlQuery string) (string, error) {
+func GetFromDatabaseSingleDal(sqlQuery string) (string, error) {
 	mycon, _ := hlp.LoadConfiguration()
 
 	//connString := fmt.Sprintf("server=%s;database=%s;user id=%s;password=%s;encrypt=%s", server, database, userdb, passworddb, encrypt)
@@ -77,7 +77,7 @@ func GetMsUserSingleDal(sqlQuery string) (string, error) {
 	return string(jsonData), nil
 }
 
-func GetMsUserListDal(sqlQuery string) (string, error) {
+func GetFromDatabaseListDal(sqlQuery string) (string, error) {
 	//mycon, _ := hlp.LoadConfiguration()
 	//connString := fmt.Sprintf("server=%s;database=%s;user id=%s;password=%s;encrypt=%s", mycon.HostDatabase, mycon.DatabaseName, mycon.UserDatabase, mycon.PasswordDatabase, mycon.EncryptDatabase)
 	//db, err = sql.Open("sqlserver", connString)
@@ -125,6 +125,60 @@ func GetMsUserListDal(sqlQuery string) (string, error) {
 		return "", err
 	}
 	//fmt.Println(string(jsonData))
+	return string(jsonData), nil
+}
+
+func SaveToDatabase(sqlQuery string) (string, error) {
+	mycon, _ := hlp.LoadConfiguration()
+
+	//connString := fmt.Sprintf("server=%s;database=%s;user id=%s;password=%s;encrypt=%s", server, database, userdb, passworddb, encrypt)
+	//connString := fmt.Sprintf("server=%s;database=%s;user id=%s;password=%s;encrypt=%s", mycon.HostDatabase, mycon.DatabaseName, mycon.UserDatabase, mycon.PasswordDatabase, mycon.EncryptDatabase)
+
+	connString := hlp.GetConnectionStringConfig()
+	db, err = sql.Open(mycon.DbDriver, connString)
+
+	//sqlQuery := fmt.Sprintf("select UserCode, Passwords from MsUser where UserCode = '%s'", usercode)
+	fmt.Println(string(sqlQuery))
+	rows, err := db.Query(sqlQuery)
+	if err != nil {
+		return "", err
+	}
+	defer rows.Close()
+	columns, err := rows.Columns()
+	if err != nil {
+		return "", err
+	}
+
+	count := len(columns)
+	tableData := make([]map[string]interface{}, 0)
+	values := make([]interface{}, count)
+	valuePtrs := make([]interface{}, count)
+	for rows.Next() {
+		for i := 0; i < count; i++ {
+			valuePtrs[i] = &values[i]
+		}
+		rows.Scan(valuePtrs...)
+		entry := make(map[string]interface{})
+		for i, col := range columns {
+			var v interface{}
+			val := values[i]
+			b, ok := val.([]byte)
+			if ok {
+				v = string(b)
+			} else {
+				v = val
+			}
+			entry[col] = v
+		}
+		tableData = append(tableData, entry)
+	}
+	jsonData, err := json.Marshal(tableData)
+	db.Close()
+	if err != nil {
+		db.Close()
+		return "", err
+	}
+	fmt.Println(string(jsonData))
 	return string(jsonData), nil
 }
 
