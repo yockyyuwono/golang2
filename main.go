@@ -39,6 +39,11 @@ func main() {
 	router := chi.NewRouter()
 	router.Get("/api/jobs", bc.GetJobs)
 	router.Get("/api/GetGreetingFunction", bc.GetGreetingFunction)
+	router.Get("/api/GetUserList", bc.GetUserList)
+	router.Get("/api/GetUserByCode", bc.GetUserByCode)
+	router.Get("/api/SaveUser", bc.SaveUser)
+	router.Get("/api/SaveUserBulk", bc.SaveUserBulk)
+
 	//run it on port 8080
 	//err := http.ListenAndServe("0.0.0.0:8080", router)
 	err := http.ListenAndServe(myserver.AppServer, router)

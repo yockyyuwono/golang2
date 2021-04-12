@@ -23,7 +23,7 @@ var encrypt = "disable"
 //var port = 1434
 */
 
-func GetFromDatabaseSingleDal(sqlQuery string) (string, error) {
+func GetUserByCode_dal(sqlQuery string) (string, error) {
 	mycon, _ := hlp.LoadConfiguration()
 
 	//connString := fmt.Sprintf("server=%s;database=%s;user id=%s;password=%s;encrypt=%s", server, database, userdb, passworddb, encrypt)
@@ -77,7 +77,7 @@ func GetFromDatabaseSingleDal(sqlQuery string) (string, error) {
 	return string(jsonData), nil
 }
 
-func GetFromDatabaseListDal(sqlQuery string) (string, error) {
+func GetFromDatabaseList_dal(sqlQuery string) (string, error) {
 	//mycon, _ := hlp.LoadConfiguration()
 	//connString := fmt.Sprintf("server=%s;database=%s;user id=%s;password=%s;encrypt=%s", mycon.HostDatabase, mycon.DatabaseName, mycon.UserDatabase, mycon.PasswordDatabase, mycon.EncryptDatabase)
 	//db, err = sql.Open("sqlserver", connString)

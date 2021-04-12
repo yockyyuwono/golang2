@@ -17,30 +17,30 @@ func GreetingFunction(name string) string {
 	//fmt.Println(name)
 }
 
-func GetMsUserSingle(usercode string) (string, error) {
+func GetUserByCode_bc(usercode string) (string, error) {
 
 	sqlQuery := fmt.Sprintf("select UserCode, Passwords from MsUser where UserCode = '%s'", usercode)
-	jsonData, err := dal.GetFromDatabaseSingleDal((sqlQuery))
+	jsonData, err := dal.GetUserByCode_dal((sqlQuery))
 
 	if err != nil {
 		return "", err
 	}
 	return string(jsonData), nil
 }
-func GetMsUserList() (string, error) {
+func GetUserList_bc() (string, error) {
 
 	//sqlQuery := fmt.Sprintf("select UserCode, Passwords from MsUser where UserCode = '%s'", usercode)
 	sqlQuery := "select RowId,UserCode,Passwords,BadgeNumber,Ssn,LastLogin,LoginLocation,DepartmentId,Email,"
 	sqlQuery += "RoleId,CreatedBy,CreatedDate,LastUpdatedBy,LastUpdatedDate,Active from MsUser"
 
-	jsonData, err := dal.GetFromDatabaseListDal((sqlQuery))
+	jsonData, err := dal.GetFromDatabaseList_dal((sqlQuery))
 
 	if err != nil {
 		return "", err
 	}
 	return string(jsonData), nil
 }
-func AddNewUserSingle(userSave mdl.UserSave) (string, error) {
+func SaveUser_bc(userSave mdl.UserSave_mdl) (string, error) {
 
 	//sqlQuery := fmt.Sprintf("select UserCode, Passwords from MsUser where UserCode = '%s'", userSave.UserCode)
 	sqlQuery := "INSERT INTO MsUSer ("
@@ -85,7 +85,7 @@ func AddNewUserSingle(userSave mdl.UserSave) (string, error) {
 	return string(jsonData), nil
 }
 
-func AddNewUserBulk(userSave []mdl.UserSave) (string, error) {
+func SaveUserBulk_bc(userSave []mdl.UserSave_mdl) (string, error) {
 	sqlQuery := ""
 	for i := 0; i < len(userSave); i++ {
 		fmt.Printf("%x ", userSave[i])

@@ -1,11 +1,11 @@
 package model
 
-type User struct {
+type User_mdl struct {
 	UserCode  string
 	Passwords string
 }
 
-type UserSave struct {
+type UserSave_mdl struct {
 	UserCode        string
 	Passwords       string
 	BadgeNumber     string
