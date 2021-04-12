@@ -5,9 +5,13 @@ import (
 	"net/http"
 
 	//bc "github.com/yockyyuwono/golang2/businesscore"
+
+	"github.com/go-chi/jwtauth"
+
 	mdl "github.com/yockyyuwono/golang2/model"
 )
 
+/*
 //A handler to fetch all the jobs
 func GetJobs(w http.ResponseWriter, r *http.Request) {
 	//make a slice to hold our jobs data
@@ -18,9 +22,54 @@ func GetJobs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(jobs)
 }
+*/
+var tokenAuth *jwtauth.JWTAuth
+
+const USERNAME = "1"
+const PASSWORD = "1"
+
+func GetToken(w http.ResponseWriter, r *http.Request) {
+	username, password, ok := r.BasicAuth()
+	if !ok {
+		w.Write([]byte(`something went wrong`))
+
+	}
+
+	isValid := (username == USERNAME) && (password == PASSWORD)
+	if !isValid {
+		w.Write([]byte(`wrong username/password`))
+		return
+	}
+	tokenAuth = jwtauth.New("HS256", []byte("rahasia"), nil)
+	_, tokenString, _ := tokenAuth.Encode(map[string]interface{}{"user_id": username + password})
+	var result, err1 = json.Marshal(tokenString)
+	if err1 != nil {
+		http.Error(w, err1.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write(result)
+	/*
+		tokenAuth = jwtauth.New("HS256", []byte("secret"), nil)
+
+		// For debugging/example purposes, we generate and print
+		// a sample jwt token with claims `user_id:123` here:
+		_, tokenString, _ := tokenAuth.Encode(map[string]interface{}{"user_id": 123})
+		//fmt.Printf("DEBUG: a sample jwt is %s\n\n", tokenString)
+
+		resultstring := tokenString
+		var result, err1 = json.Marshal(resultstring)
+		if err1 != nil {
+			http.Error(w, err1.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Write(result)
+		//return
+	*/
+}
 
 func GetGreetingFunction(w http.ResponseWriter, r *http.Request) {
 	//resultstring := bc.GreetingFunction("saya")
+	//_, claims, _ := jwtauth.FromContext(r.Context())
 	resultstring := GreetingFunction("kamu")
 	var result, err1 = json.Marshal(resultstring)
 	if err1 != nil {

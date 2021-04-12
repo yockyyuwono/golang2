@@ -1,11 +1,12 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 
 	_ "github.com/denisenkom/go-mssqldb"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/jwtauth/v5"
 
 	bc "github.com/yockyyuwono/golang2/businesscore"
 	hlp "github.com/yockyyuwono/golang2/helper"
@@ -22,6 +23,17 @@ type Configuration struct {
 }
 */
 //Config := hlp.Configuration{}
+var tokenAuth *jwtauth.JWTAuth
+
+func init() {
+	tokenAuth = jwtauth.New("HS256", []byte("rahasia"), nil)
+	/*
+		// For debugging/example purposes, we generate and print
+		// a sample jwt token with claims `user_id:123` here:
+		_, tokenString, _ := tokenAuth.Encode(map[string]interface{}{"user_id": 123})
+		fmt.Printf("DEBUG: a sample jwt is %s\n\n", tokenString)
+	*/
+}
 
 func main() {
 	/*
@@ -35,22 +47,57 @@ func main() {
 
 	myserver, _ := hlp.LoadConfiguration()
 	//http.ListenAndServe(myserver.AppServer, nil)
+	addr := myserver.AppServer
+	fmt.Printf("Starting server on %v\n", myserver.AppServer)
+	http.ListenAndServe(addr, router())
+	/*
+		router := chi.NewRouter()
 
-	router := chi.NewRouter()
-	router.Get("/api/jobs", bc.GetJobs)
-	router.Get("/api/GetGreetingFunction", bc.GetGreetingFunction)
-	router.Get("/api/GetUserList", bc.GetUserList)
-	router.Get("/api/GetUserByCode", bc.GetUserByCode)
-	router.Get("/api/SaveUser", bc.SaveUser)
-	router.Get("/api/SaveUserBulk", bc.SaveUserBulk)
+		router.Get("/api/GetGreetingFunction", bc.GetGreetingFunction)
+		router.Get("/api/GetUserList", bc.GetUserList)
+		router.Get("/api/GetUserByCode", bc.GetUserByCode)
+		router.Post("/api/SaveUser", bc.SaveUser)
+		router.Post("/api/SaveUserBulk", bc.SaveUserBulk)
 
-	//run it on port 8080
-	//err := http.ListenAndServe("0.0.0.0:8080", router)
-	err := http.ListenAndServe(myserver.AppServer, router)
-	if err != nil {
-		log.Fatal(err)
-	}
+		//run it on port 8080
+		//err := http.ListenAndServe("0.0.0.0:8080", router)
+		err := http.ListenAndServe(myserver.AppServer, router)
+		if err != nil {
+			log.Fatal(err)
+		}
+	*/
+}
+func router() http.Handler {
+	r := chi.NewRouter()
 
+	// Protected routes
+	r.Group(func(r chi.Router) {
+		// Seek, verify and validate JWT tokens
+		r.Use(jwtauth.Verifier(tokenAuth))
+
+		// Handle valid / invalid tokens. In this example, we use
+		// the provided authenticator middleware, but you can write your
+		// own very easily, look at the Authenticator method in jwtauth.go
+		// and tweak it, its not scary.
+		r.Use(jwtauth.Authenticator)
+
+		//r.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
+		//	_, claims, _ := jwtauth.FromContext(r.Context())
+		//	w.Write([]byte(fmt.Sprintf("protected area. hi %v", claims["user_id"])))
+		//})
+		r.Get("/api/GetGreetingFunction", bc.GetGreetingFunction)
+		r.Get("/api/GetUserList", bc.GetUserList)
+	})
+
+	r.Get("/api/GetToken", bc.GetToken)
+	// Public routes
+	//r.Group(func(r chi.Router) {
+	//	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+	//		w.Write([]byte("welcome anonymous"))
+	//	})
+	//})
+
+	return r
 }
 
 /*
