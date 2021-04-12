@@ -68,36 +68,32 @@ func main() {
 	*/
 }
 func router() http.Handler {
-	r := chi.NewRouter()
-
+	router := chi.NewRouter()
 	// Protected routes
-	r.Group(func(r chi.Router) {
+	router.Group(func(router chi.Router) {
 		// Seek, verify and validate JWT tokens
-		r.Use(jwtauth.Verifier(tokenAuth))
+		router.Use(jwtauth.Verifier(tokenAuth))
 
 		// Handle valid / invalid tokens. In this example, we use
 		// the provided authenticator middleware, but you can write your
 		// own very easily, look at the Authenticator method in jwtauth.go
 		// and tweak it, its not scary.
-		r.Use(jwtauth.Authenticator)
+		router.Use(jwtauth.Authenticator)
 
 		//r.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
 		//	_, claims, _ := jwtauth.FromContext(r.Context())
 		//	w.Write([]byte(fmt.Sprintf("protected area. hi %v", claims["user_id"])))
 		//})
-		r.Get("/api/GetGreetingFunction", bc.GetGreetingFunction)
-		r.Get("/api/GetUserList", bc.GetUserList)
+		router.Get("/api/GetGreetingFunction", bc.GetGreetingFunction)
+		router.Get("/api/GetUserList", bc.GetUserList)
+		router.Get("/api/GetUserByCode", bc.GetUserByCode)
+		router.Post("/api/SaveUser", bc.SaveUser)
+		router.Post("/api/SaveUserBulk", bc.SaveUserBulk)
 	})
-
-	r.Get("/api/GetToken", bc.GetToken)
 	// Public routes
-	//r.Group(func(r chi.Router) {
-	//	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-	//		w.Write([]byte("welcome anonymous"))
-	//	})
-	//})
+	router.Get("/api/GetToken", bc.GetToken)
 
-	return r
+	return router
 }
 
 /*

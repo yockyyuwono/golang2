@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	//bc "github.com/yockyyuwono/golang2/businesscore"
+	dal "github.com/yockyyuwono/golang2/dal"
 
 	"github.com/go-chi/jwtauth"
 
@@ -25,17 +25,28 @@ func GetJobs(w http.ResponseWriter, r *http.Request) {
 */
 var tokenAuth *jwtauth.JWTAuth
 
+/*
 const USERNAME = "1"
 const PASSWORD = "1"
+*/
 
 func GetToken(w http.ResponseWriter, r *http.Request) {
 	username, password, ok := r.BasicAuth()
 	if !ok {
 		w.Write([]byte(`something went wrong`))
-
 	}
+	sqlQuery := "SELECT COUNT(*) "
+	sqlQuery += "FROM Auth With(NoLock) "
+	sqlQuery += "WHERE UserName = '" + username + "' "
+	sqlQuery += "AND Passwords = '" + password + "' "
+	sqlQuery += "AND Active = '1' "
 
-	isValid := (username == USERNAME) && (password == PASSWORD)
+	isValid, errBool := dal.GetUserAuth_dal(sqlQuery)
+	if errBool != nil {
+		http.Error(w, errBool.Error(), http.StatusInternalServerError)
+		return
+	}
+	//isValid := (username == USERNAME) && (password == PASSWORD)
 	if !isValid {
 		w.Write([]byte(`wrong username/password`))
 		return
