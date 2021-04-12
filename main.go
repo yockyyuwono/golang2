@@ -7,7 +7,7 @@ import (
 	_ "github.com/denisenkom/go-mssqldb"
 	"github.com/go-chi/chi"
 
-	//bc "github.com/yockyyuwono/golang2/businesscore"
+	bc "github.com/yockyyuwono/golang2/businesscore"
 	hlp "github.com/yockyyuwono/golang2/helper"
 )
 
@@ -37,8 +37,8 @@ func main() {
 	//http.ListenAndServe(myserver.AppServer, nil)
 
 	router := chi.NewRouter()
-	router.Get("/api/jobs", hlp.GetJobs)
-	router.Get("/api/GetGreetingFunction", hlp.GetGreetingFunction)
+	router.Get("/api/jobs", bc.GetJobs)
+	router.Get("/api/GetGreetingFunction", bc.GetGreetingFunction)
 	//run it on port 8080
 	//err := http.ListenAndServe("0.0.0.0:8080", router)
 	err := http.ListenAndServe(myserver.AppServer, router)

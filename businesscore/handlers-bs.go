@@ -1,10 +1,10 @@
-package helper
+package businesscore
 
 import (
 	"encoding/json"
 	"net/http"
 
-	bc "github.com/yockyyuwono/golang2/businesscore"
+	//bc "github.com/yockyyuwono/golang2/businesscore"
 	mdl "github.com/yockyyuwono/golang2/model"
 )
 
@@ -20,7 +20,8 @@ func GetJobs(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetGreetingFunction(w http.ResponseWriter, r *http.Request) {
-	resultstring := bc.GreetingFunction("saya")
+	//resultstring := bc.GreetingFunction("saya")
+	resultstring := GreetingFunction("kamu")
 	var result, err1 = json.Marshal(resultstring)
 	if err1 != nil {
 		http.Error(w, err1.Error(), http.StatusInternalServerError)
