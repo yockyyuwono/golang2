@@ -1,13 +1,14 @@
 package main
 
 import (
-	"encoding/json"
+	"log"
 	"net/http"
 
 	_ "github.com/denisenkom/go-mssqldb"
-	bc "github.com/yockyyuwono/golang2/businesscore"
+	"github.com/go-chi/chi"
+
+	//bc "github.com/yockyyuwono/golang2/businesscore"
 	hlp "github.com/yockyyuwono/golang2/helper"
-	mdl "github.com/yockyyuwono/golang2/model"
 )
 
 /*
@@ -23,19 +24,27 @@ type Configuration struct {
 //Config := hlp.Configuration{}
 
 func main() {
-
-	//getconfig()
-
-	http.HandleFunc("/hellogreetingmain", hellogreetingmain)
-	http.HandleFunc("/getmsusersingle", getmsusersingle)
-	http.HandleFunc("/getmsuserlist", getmsuserlist)
-	http.HandleFunc("/addmsusersingle", addmsusersingle)
-	http.HandleFunc("/addmsuserbulk", addmsuserbulk)
-
-	//http.ListenAndServe("192.168.205.20:8080", nil)
+	/*
+		http.HandleFunc("/hellogreetingmain", hellogreetingmain)
+		http.HandleFunc("/getmsusersingle", getmsusersingle)
+		http.HandleFunc("/getmsuserlist", getmsuserlist)
+		http.HandleFunc("/addmsusersingle", addmsusersingle)
+		http.HandleFunc("/addmsuserbulk", addmsuserbulk)
+	*/
+	////http.ListenAndServe("192.168.205.20:8080", nil)
 
 	myserver, _ := hlp.LoadConfiguration()
-	http.ListenAndServe(myserver.AppServer, nil)
+	//http.ListenAndServe(myserver.AppServer, nil)
+
+	router := chi.NewRouter()
+	router.Get("/api/jobs", hlp.GetJobs)
+	router.Get("/api/GetGreetingFunction", hlp.GetGreetingFunction)
+	//run it on port 8080
+	//err := http.ListenAndServe("0.0.0.0:8080", router)
+	err := http.ListenAndServe(myserver.AppServer, router)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 }
 
@@ -46,6 +55,7 @@ type Person struct {
 }
 */
 
+/*
 func hellogreetingmain(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -122,14 +132,6 @@ func getmsuserlist(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method == "GET" {
-		/*
-			var userModel mdl.User
-			err := json.NewDecoder(r.Body).Decode(&userModel)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-		*/
 
 		var resultstring, err1 = bc.GetMsUserList()
 		//fmt.Println(resultstring)
@@ -219,3 +221,4 @@ func addmsuserbulk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+*/

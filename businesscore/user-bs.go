@@ -8,6 +8,15 @@ import (
 	mdl "github.com/yockyyuwono/golang2/model"
 )
 
+func GreetingFunction(name string) string {
+	// Return a greeting that embeds the name in a message.
+	//message := fmt.Sprintf("Hi, %v. Welcome!", name)
+	var balikin string = name
+
+	return balikin
+	//fmt.Println(name)
+}
+
 func GetMsUserSingle(usercode string) (string, error) {
 
 	sqlQuery := fmt.Sprintf("select UserCode, Passwords from MsUser where UserCode = '%s'", usercode)
