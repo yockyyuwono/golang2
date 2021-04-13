@@ -26,7 +26,7 @@ type Configuration struct {
 var tokenAuth *jwtauth.JWTAuth
 
 func init() {
-	tokenAuth = jwtauth.New("HS256", []byte("rahasia"), nil)
+	tokenAuth = jwtauth.New("HS256", []byte("Rahasia1780"), nil)
 	/*
 		// For debugging/example purposes, we generate and print
 		// a sample jwt token with claims `user_id:123` here:

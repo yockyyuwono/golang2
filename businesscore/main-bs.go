@@ -51,8 +51,10 @@ func GetToken(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`wrong username/password`))
 		return
 	}
-	tokenAuth = jwtauth.New("HS256", []byte("rahasia"), nil)
+
+	tokenAuth = jwtauth.New("HS256", []byte("Rahasia1780"), nil)
 	_, tokenString, _ := tokenAuth.Encode(map[string]interface{}{"user_id": username + password})
+
 	var result, err1 = json.Marshal(tokenString)
 	if err1 != nil {
 		http.Error(w, err1.Error(), http.StatusInternalServerError)
