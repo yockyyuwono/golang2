@@ -2,11 +2,11 @@ package businesscore
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
-	dal "github.com/yockyyuwono/golang2/dal"
-
 	"github.com/go-chi/jwtauth"
+	dal "github.com/yockyyuwono/golang2/dal"
 
 	mdl "github.com/yockyyuwono/golang2/model"
 )
@@ -29,6 +29,9 @@ var tokenAuth *jwtauth.JWTAuth
 const USERNAME = "1"
 const PASSWORD = "1"
 */
+type tknStruct struct {
+	Token string //Harus diawali huruf besar
+}
 
 func GetToken(w http.ResponseWriter, r *http.Request) {
 	username, password, ok := r.BasicAuth()
@@ -48,14 +51,17 @@ func GetToken(w http.ResponseWriter, r *http.Request) {
 	}
 	//isValid := (username == USERNAME) && (password == PASSWORD)
 	if !isValid {
-		w.Write([]byte(`wrong username/password`))
+		w.Write([]byte(`invalid username/password`))
 		return
 	}
 
 	tokenAuth = jwtauth.New("HS256", []byte("Rahasia1780"), nil)
+	//jwtauth.SetExpiry(claim )
 	_, tokenString, _ := tokenAuth.Encode(map[string]interface{}{"user_id": username + password})
+	tknJson := &tknStruct{string(tokenString)}
 
-	var result, err1 = json.Marshal(tokenString)
+	var result, err1 = json.Marshal(tknJson)
+	fmt.Println(string(result))
 	if err1 != nil {
 		http.Error(w, err1.Error(), http.StatusInternalServerError)
 		return
