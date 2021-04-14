@@ -2,10 +2,11 @@ package businesscore
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"time"
 
-	"github.com/go-chi/jwtauth"
+	"github.com/dgrijalva/jwt-go"
+	//"github.com/go-chi/jwtauth"
 	dal "github.com/yockyyuwono/golang2/dal"
 
 	mdl "github.com/yockyyuwono/golang2/model"
@@ -23,12 +24,12 @@ func GetJobs(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(jobs)
 }
 */
-var tokenAuth *jwtauth.JWTAuth
+//var tokenAuth *jwtauth.JWTAuth
 
 /*
-const USERNAME = "1"
-const PASSWORD = "1"
-*/
+var tokenAuth *jwtauth.JWTAuth
+
+
 type tknStruct struct {
 	Token string //Harus diawali huruf besar
 }
@@ -67,25 +68,131 @@ func GetToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(result)
-	/*
-		tokenAuth = jwtauth.New("HS256", []byte("secret"), nil)
 
-		// For debugging/example purposes, we generate and print
-		// a sample jwt token with claims `user_id:123` here:
-		_, tokenString, _ := tokenAuth.Encode(map[string]interface{}{"user_id": 123})
-		//fmt.Printf("DEBUG: a sample jwt is %s\n\n", tokenString)
-
-		resultstring := tokenString
-		var result, err1 = json.Marshal(resultstring)
-		if err1 != nil {
-			http.Error(w, err1.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.Write(result)
-		//return
-	*/
+}
+*/
+type customClaims struct {
+	Username string `json:"username"`
+	jwt.StandardClaims
+}
+type tknStruct struct {
+	Token string //Harus diawali huruf besar
 }
 
+func GetToken(w http.ResponseWriter, r *http.Request) {
+	username, password, ok := r.BasicAuth()
+	if !ok {
+		w.Write([]byte(`something went wrong`))
+	}
+
+	sqlQuery := "SELECT COUNT(*) "
+	sqlQuery += "FROM Auth With(NoLock) "
+	sqlQuery += "WHERE UserName = '" + username + "' "
+	sqlQuery += "AND Passwords = '" + password + "' "
+	sqlQuery += "AND Active = '1' "
+
+	isValid, errBool := dal.GetUserAuth_dal(sqlQuery)
+	if errBool != nil {
+		http.Error(w, errBool.Error(), http.StatusInternalServerError)
+		return
+	}
+	//isValid := (username == USERNAME) && (password == PASSWORD)
+	if !isValid {
+		w.Write([]byte(`invalid username/password`))
+		return
+	}
+
+	//expiredTime := time.Now().AddDate(0, 0, 7*1)
+	expiredTime := time.Now().UTC().AddDate(0, 0, 7*1).Unix() // 7 hari
+	//expiredTime := time.Now().UTC().Add(60 * time.Second).Unix()	// 60 Detik
+
+	claims := customClaims{
+		Username: username + password,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expiredTime,
+			Issuer:    "mygolang",
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	signedToken, err := token.SignedString([]byte("Rahasia1780"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	//var result, err1 = json.Marshal(signedToken)
+	tknJson := &tknStruct{string(signedToken)}
+	var result, err1 = json.Marshal(tknJson)
+	//fmt.Println(string(result))
+	if err1 != nil {
+		http.Error(w, err1.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(result)
+}
+
+/*
+func CekHeaderToken(w http.ResponseWriter, r *http.Request) {
+	reqToken := r.Header.Get("Authorization")
+	resultstring := GreetingFunction(reqToken)
+	var result, err1 = json.Marshal(resultstring)
+	if err1 != nil {
+		http.Error(w, err1.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write(result)
+	//return
+}
+
+func VerifyToken1(r *http.Request) bool {
+
+	reqToken := r.Header.Get("Authorization")
+	token, err := jwt.Parse(reqToken, func(t *jwt.Token) (interface{}, error) {
+		return []byte("Rahasia1780"), nil
+	})
+	if err == nil && token.Valid {
+		fmt.Println("valid token")
+		return true
+	} else {
+		fmt.Println("invalid token")
+		return false
+	}
+
+}
+func VerifyToken2(w http.ResponseWriter, r *http.Request) bool {
+	// Token from another example.  This token is expired
+	reqToken := r.Header.Get("Authorization")
+	//var tokenString = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJleHAiOjE1MDAwLCJpc3MiOiJ0ZXN0In0.HE7fK0xOQwFEr4WDgRWj4teRPZ6i3GLwD5YCm6Pwu_c"
+
+	token, err := jwt.Parse(reqToken, func(token *jwt.Token) (interface{}, error) {
+		return []byte("AllYourBase"), nil
+	})
+
+	if token.Valid {
+		fmt.Println("You look nice today")
+		return true
+	} else if ve, ok := err.(*jwt.ValidationError); ok {
+		if ve.Errors&jwt.ValidationErrorMalformed != 0 {
+			fmt.Println("That's not even a token")
+			return false
+		} else if ve.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
+			// Token is either expired or not active yet
+			fmt.Println("Timing is everything")
+			return false
+		} else {
+			fmt.Println("Couldn't handle this token:", err)
+			return false
+		}
+	} else {
+		fmt.Println("Couldn't handle this token:", err)
+		return false
+	}
+
+	// Output: Timing is everything
+}
+*/
 func GetGreetingFunction(w http.ResponseWriter, r *http.Request) {
 	//resultstring := bc.GreetingFunction("saya")
 	//_, claims, _ := jwtauth.FromContext(r.Context())

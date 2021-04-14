@@ -6,7 +6,11 @@ import (
 
 	_ "github.com/denisenkom/go-mssqldb"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/jwtauth/v5"
+	"github.com/go-chi/jwtauth"
+
+	//"github.com/go-chi/jwtauth"
+
+	//"github.com/go-chi/jwtauth/v5"
 
 	bc "github.com/yockyyuwono/golang2/businesscore"
 	hlp "github.com/yockyyuwono/golang2/helper"
@@ -50,40 +54,25 @@ func main() {
 	addr := myserver.AppServer
 	fmt.Printf("Starting server on %v\n", myserver.AppServer)
 	http.ListenAndServe(addr, router())
-	/*
-		router := chi.NewRouter()
 
-		router.Get("/api/GetGreetingFunction", bc.GetGreetingFunction)
-		router.Get("/api/GetUserList", bc.GetUserList)
-		router.Get("/api/GetUserByCode", bc.GetUserByCode)
-		router.Post("/api/SaveUser", bc.SaveUser)
-		router.Post("/api/SaveUserBulk", bc.SaveUserBulk)
-
-		//run it on port 8080
-		//err := http.ListenAndServe("0.0.0.0:8080", router)
-		err := http.ListenAndServe(myserver.AppServer, router)
-		if err != nil {
-			log.Fatal(err)
-		}
-	*/
 }
 func router() http.Handler {
 	router := chi.NewRouter()
-	// Protected routes
+	//// Protected routes
 	router.Group(func(router chi.Router) {
-		// Seek, verify and validate JWT tokens
+		//// Seek, verify and validate JWT tokens
 		router.Use(jwtauth.Verifier(tokenAuth))
 
-		// Handle valid / invalid tokens. In this example, we use
-		// the provided authenticator middleware, but you can write your
-		// own very easily, look at the Authenticator method in jwtauth.go
-		// and tweak it, its not scary.
+		//// Handle valid / invalid tokens. In this example, we use
+		//// the provided authenticator middleware, but you can write your
+		//// own very easily, look at the Authenticator method in jwtauth.go
+		//// and tweak it, its not scary.
 		router.Use(jwtauth.Authenticator)
 
-		//r.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
-		//	_, claims, _ := jwtauth.FromContext(r.Context())
-		//	w.Write([]byte(fmt.Sprintf("protected area. hi %v", claims["user_id"])))
-		//})
+		////r.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
+		////	_, claims, _ := jwtauth.FromContext(r.Context())
+		////	w.Write([]byte(fmt.Sprintf("protected area. hi %v", claims["user_id"])))
+		////})
 		router.Get("/api/GetGreetingFunction", bc.GetGreetingFunction)
 		router.Get("/api/GetUserList", bc.GetUserList)
 		router.Get("/api/GetUserByCode", bc.GetUserByCode)
@@ -91,7 +80,10 @@ func router() http.Handler {
 		router.Post("/api/SaveUserBulk", bc.SaveUserBulk)
 	})
 	// Public routes
+	//router.Get("/api/GetToken", bc.GetToken)
 	router.Get("/api/GetToken", bc.GetToken)
+	//router.Get("/api/CekHeaderToken", bc.VerifyToken1)
+	//router.Get("/api/CekHeaderToken", bc.VerifyToken1)
 
 	return router
 }
